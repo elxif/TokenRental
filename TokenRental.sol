@@ -1,9 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.7.0 <0.9.0;
-import "@openzeppelin/contracts@4.8.2/ERC721/ERC721.sol";
+pragma solidity ^0.8.0;
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
+contract TokenRentalSystem is ERC721 {
 
-contract MyGov is ERC20 {
+    address public owner;
+
+    constructor() ERC721("TokenRental", "TRS") {
+        owner = msg.sender;
+    }
 
 }
  
