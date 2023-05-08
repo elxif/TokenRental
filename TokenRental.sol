@@ -14,5 +14,19 @@ contract TokenRentalSystem is ERC721 {
         string Name;
     }
 
+    struct Asset {
+        string name;
+        address assetAddress;
+        address ownerAddress;
+    }
+
+    struct Payment {
+        uint paymentId;
+        uint paymentDateTime;
+        uint paymentAmount;
+        address whoPays;
+        address whoGetPaid;
+    }
+ 
 }
  
