@@ -6,12 +6,17 @@ contract TokenRentalSystem is ERC721 {
 
     address public owner;
 
-    constructor() ERC721("TokenRental", "TRS") {
-        owner = msg.sender;
+    struct Member {
+        string fullName;
+        uint memberID;
     }
 
-    struct Member {
-        string Name;
+    struct RentalContract {
+        uint startTime;
+        uint endTime;
+        Member owner;
+        Member renter;
+        Asset rentalAsset;
     }
 
     struct Asset {
@@ -26,6 +31,10 @@ contract TokenRentalSystem is ERC721 {
         uint paymentAmount;
         address whoPays;
         address whoGetPaid;
+    }
+
+    constructor() ERC721("TokenRental", "TRS") {
+        owner = msg.sender;
     }
  
 }
