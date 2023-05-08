@@ -22,7 +22,7 @@ contract TokenRentalSystem is ERC721 {
     struct Asset {
         string name;
         address assetAddress;
-        address ownerAddress;
+        Member owner;
     }
 
     struct Payment {
@@ -33,9 +33,18 @@ contract TokenRentalSystem is ERC721 {
         address whoGetPaid;
     }
 
+    mapping(uint => Member) public members;
+    mapping(uint => Asset) public assets;
+
     constructor() ERC721("TokenRental", "TRS") {
         owner = msg.sender;
     }
+
+   function getAssetOwner(uint assetID) public view returns(string memory fullname){
+       Asset storage a = assets[assetID];
+       return a.owner.fullName;
+   }
+
  
 }
  
