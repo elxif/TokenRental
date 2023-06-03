@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+
 
 /*
  * 
@@ -24,22 +26,28 @@ hours, days, months etc.
  */
 
 //TODO: adapt to erc721
-//TODO: add base fee to assets
-//TODO: check enough payment made in request
-//TODO: asset info return rentable
-//TODO: write view functions: membercount, assetcount etc
-//TODO: improve toggleAssetAvailability error messages, e.g. when there is no asset
-//TODO: add error message: no request exists in respondRentalContractRequest
+
 //TODO: when the response is given as false then the paid amount should be refunded
-//TODO: get requestInfo function implementation
-//TODO: get rentalcontractinfo function implementation
-//TODO: return contractid when responded, return -1 if rejected 
-//TODO: when approving you should check whether the start time of the request is already past, make refund
+
 //TODO: when a request is not responded till its start time you should refund it
 //     * writefunction: request refund if start time is past and responded is false AND renter is msg.sender
-//TODO:
-//TODO:
 
+
+// Done and needs reviews
+//Review: //TODO: check enough payment made in request
+//Review: //TODO: add base fee to assets ++++ also setting base fee implemented setRentalPrice function
+//Review: //TODO: asset info return rentable implemented and rentPrice is also returned at info function
+//Review: //TODO: improve toggleAssetAvailability error messages, e.g. when there is no asset 
+//Review: //TODO: add error message: no request exists in respondRentalContractRequest ---> implemented by checking the value of assetRenter address in request struct
+//Review: //TODO: get requestInfo function implementation ===>   it was already implemented
+//Review: //TODO: get rentalcontractinfo function implementation  ===> it was already implemented
+//Review: //TODO: return contractid when responded, return -1 if rejected ===> returning 0 instead of -1 due to using uint type everywhere,(every valid contractID > 0)
+//Review: //TODO: when approving you should check whether the start time of the request is already past, make refund 
+            /// only the cheking whether the start time is already in the past is implemented
+            /// whole refund policy should be treated toghether and accordingly
+//Review:   //TODO: write view functions: membercount, assetcount etc --- implemented at the bottom
+//Review:
+//Review:
 
 
 
@@ -72,6 +80,7 @@ contract TokenRentalSystem is ERC721 {
       	uint assetID;
       	address assetRenter;
       	bool responded;
+        uint rentalContractID;
     }
 
     struct Asset {
@@ -82,6 +91,7 @@ contract TokenRentalSystem is ERC721 {
         uint latitude; // X coordinate
         uint longitude; // Y coordinate
       	uint[] contractList;
+        uint rentPrice; // per unit time
     }
 
     struct Payment {
@@ -105,26 +115,39 @@ contract TokenRentalSystem is ERC721 {
 		return assets[assetID].assetOwner;
 	}
   
-	function createAsset(string memory assetName, bool isRealEstate, uint latitude, uint longitude, bool rentable) public onlyActiveMember(msg.sender) returns(uint assetID) {
-        assetCount++;
-		assetID = assetCount;
-        assets[assetID].assetName = assetName;
-        assets[assetID].assetOwner = msg.sender;
-        assets[assetID].isRealEstate = isRealEstate;
-        assets[assetID].latitude = latitude;
-        assets[assetID].longitude = longitude;
-      	assets[assetID].rentable = rentable;
-      
-        members[msg.sender].assetList.push(assetID);
-        return assetID;
+	function createAsset(string memory assetName, 
+                        bool isRealEstate, 
+                        uint latitude, 
+                        uint longitude, 
+                        bool rentable,
+                        uint rentPrice) public onlyActiveMember(msg.sender) returns(uint assetID) {
+      assetCount++;
+		  assetID = assetCount;
+      assets[assetID].assetName = assetName;
+      assets[assetID].assetOwner = msg.sender;
+      assets[assetID].isRealEstate = isRealEstate;
+      assets[assetID].latitude = latitude;
+      assets[assetID].longitude = longitude;
+      assets[assetID].rentable = rentable;
+      assets[assetID].rentPrice = rentPrice;
+
+      members[msg.sender].assetList.push(assetID);
+      return assetID;
   	}
   
   	function toggleAssetAvailability(uint assetID) public onlyActiveMember(msg.sender) returns(bool rentable) {
       Asset storage a = assets[assetID];
+      require(a.assetOwner != address(0), "Asset does not exist.");
       require(a.assetOwner == msg.sender, "You are not the owner of this asset.");
       a.rentable = !a.rentable;
       return a.rentable;
       
+    }
+
+    function setAssetRentPrice(uint assetID, uint rentPrice) public onlyActiveMember(msg.sender) {
+      Asset storage a = assets[assetID];
+      require(a.assetOwner == msg.sender, "You are not the owner of this asset.");
+      a.rentPrice = rentPrice;    
     }
   
     function createMember() public returns(address memberAddress) {
@@ -148,61 +171,64 @@ contract TokenRentalSystem is ERC721 {
        _;
    }
   
-	function getAssetInfo(uint assetID) public view returns(string memory assetName, address assetOwner, bool isRealEstate, uint latitude, uint longitude){
-    	assetName = assets[assetID].assetName;
-        assetOwner = assets[assetID].assetOwner;
-        isRealEstate = assets[assetID].isRealEstate;
-        latitude = assets[assetID].latitude;
-        longitude = assets[assetID].longitude;
-        return (assetName, assetOwner, isRealEstate, latitude, longitude);
+	function getAssetInfo(uint assetID) public view returns(string memory assetName, address assetOwner, bool isRealEstate, uint latitude, uint longitude, bool rentable, uint rentPrice){
+    	Asset storage a = assets[assetID];
+      return (a.assetName, a.assetOwner, a.isRealEstate, a.latitude, a.longitude, a.rentable, a.rentPrice);
     }
   
 	function getMemberInfo(address memberAddress) public view returns(bool isActive, bool isBanned, uint[] memory assetList) {
       	Member storage m = members[memberAddress];
       	return(m.isActive, m.isBanned, m.assetList);
     }
-  
+
     function getRentalContractInfo(uint rentalContractID) public view returns(uint startTime, uint endTime, 
                                                                                  address assetOwner, address assetRenter,uint assetID) {
       	RentalContract storage r = rentalContracts[rentalContractID];
       	return(r.startTime, r.endTime, r.assetOwner, r.assetRenter, r.assetID);
     }
   
-      function getRequestInfo(uint requestID) public view returns(uint assetID, bool responded, address assetRenter, uint startTime, uint endTime) {
+      function getRequestInfo(uint requestID) public view returns(uint assetID, bool responded, address assetRenter, 
+                                                                  uint startTime, uint endTime, uint rentalContractID) {
         RentalContractRequest storage r = rentalRequests[requestID];
-        return(r.assetID, r.responded, r.assetRenter, r.startTime, r.endTime);
+        return(r.assetID, r.responded, r.assetRenter, r.startTime, r.endTime, r.rentalContractID);
     }
   
-    function respondRentalContractRequest(uint requestID, bool RentalContractResponse) public onlyActiveMember(msg.sender) {
+    function respondRentalContractRequest(uint requestID, bool RentalContractResponse) public onlyActiveMember(msg.sender) returns(uint contractID){
         //Member storage m = members[msg.sender];
         RentalContractRequest storage r = rentalRequests[requestID];
+        require(r.assetRenter != address(0), "The rental request does not exist!");
         Asset storage a = assets[r.assetID];
         //require request does not exist
         require(a.assetOwner == msg.sender, "You are not the owner of this asset.");
         require(!r.responded, "This request has already been responded to.");
+        require(r.startTime > block.timestamp, "You cannot respond to a rental request that rental period starts in the past!");
       	r.responded = true;
         if(RentalContractResponse) {
-          	approveRentalContractRequest(requestID);
+            r.rentalContractID = approveRentalContractRequest(requestID);
+          	return r.rentalContractID;
         }
-
+        r.rentalContractID = 0;  // means contract not created, request rejected
+        return r.rentalContractID; 
     }
   
-    function approveRentalContractRequest(uint requestID) private {
+    function approveRentalContractRequest(uint requestID) private returns(uint rentalContractID){
         rentalContractCount++;
-        uint rentalContractID = rentalContractCount;
-        rentalContracts[rentalContractID].startTime = rentalRequests[requestID].startTime;
-        rentalContracts[rentalContractID].endTime = rentalRequests[requestID].endTime;
-        rentalContracts[rentalContractID].assetID = rentalRequests[requestID].assetID;
-        rentalContracts[rentalContractID].assetRenter = rentalRequests[requestID].assetRenter;
-        rentalContracts[rentalContractID].assetOwner = assets[rentalRequests[requestID].assetID].assetOwner;
+        rentalContractID = rentalContractCount;
+        RentalContractRequest storage req = rentalRequests[requestID];
+        rentalContracts[rentalContractID].startTime = req.startTime;
+        rentalContracts[rentalContractID].endTime = req.endTime;
+        rentalContracts[rentalContractID].assetID = req.assetID;
+        rentalContracts[rentalContractID].assetRenter = req.assetRenter;
+        rentalContracts[rentalContractID].assetOwner = assets[req.assetID].assetOwner;
       	assets[rentalRequests[requestID].assetID].contractList.push(rentalContractID);
-      	
+        return rentalContractID; 	
     }
 
     function makeRentalContractRequest(uint assetID, uint startTime, uint endTime) public payable onlyActiveMember(msg.sender) returns(uint requestID){
         //Member storage requester = members[msg.sender];
         Asset storage a = assets[assetID];
       	require(a.assetOwner != address(0), "Asset does not exist.");
+        require(msg.value == (a.rentPrice * (endTime - startTime)), string.concat("You should pay the exact price: ", Strings.toString((a.rentPrice * (endTime - startTime)))));
       	require(startTime >= block.timestamp, "Start time cannot be in the past.");
       	require(endTime > startTime, "Start time cannot be later than end time.");
         require(a.rentable, "Asset is not available for renting.");
@@ -222,6 +248,24 @@ contract TokenRentalSystem is ERC721 {
         rentalRequests[requestID].assetRenter = msg.sender;
         return requestID;
 
+    }
+
+
+    // view functions
+
+    function getNoOfMembers () public view returns(uint numMembers){
+       numMembers = memberCount;
+       return numMembers;
+    }
+
+    function getNoOfAssets () public view returns(uint numAssets){
+       numAssets = assetCount;
+       return numAssets;
+    }
+
+    function getNoOfRentalContracts () public view returns(uint numRentalContracts){
+       numRentalContracts = rentalContractCount;
+       return numRentalContracts;
     }
   
 }
