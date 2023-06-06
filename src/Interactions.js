@@ -9,10 +9,8 @@ const Interactions = (props) => {
     const assetViewer = async (e) => {
         e.preventDefault();
         let id = e.target.assetID.value;
-        //id=parseInt(id);
+        id=parseInt(id);
         console.log("assetID: " + id);
-        let contractCode = props.contract.provider.getCode(props.contract.contractAddress);
-        console.log(contractCode);
         let tx = await props.contract.getAssetOwner(id);
         console.log(tx);
         if(tx === "0x0000000000000000000000000000000000000000"){
