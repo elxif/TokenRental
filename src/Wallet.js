@@ -79,13 +79,12 @@ const Wallet = () => {
 
     return (
         <div>
-            <h1>{tokenName} + ERC-20</h1>
+            <h1>{tokenName} + ERC-721</h1>
             <button className={styles.button6} onClick={connectWalletHandler}>{connectButtonName}</button>
             <div className={styles.walletCard}>
                 <div>
                     <p>Address: {defaultAccount}</p>
                 </div>
-                <button className={styles.button6} onClick={faucetHandler}>Faucet</button>
 
                 <div>
                     <h2>{tokenName} Balance: {balance}</h2>
