@@ -88,7 +88,6 @@ contract MyGov is ERC20 {
        require(!sender.tookFreeToken, "Already given token.");
        sender.tookFreeToken = true;  
        this.transfer(msg.sender, 1);
-       memberCount++;
        return true;  
    }
  
@@ -574,6 +573,10 @@ contract MyGov is ERC20 {
         }
         return (numtaken, results);
     }
+
+    function decimals() public view virtual override returns (uint8) {
+        return 0;
+    }
  
     /*
     *   Overrides the transfer function in the ERC20 contract because of the rule that
@@ -583,6 +586,14 @@ contract MyGov is ERC20 {
         address voter = msg.sender;
 
         if(proposalCount == 0){
+
+            if(balanceOf(voter) == amount && balanceOf(to) > 0){
+                memberCount--;
+            }
+            
+            if(balanceOf(to) == 0 && balanceOf(voter) > amount){
+                memberCount++;
+            }
             return super.transfer(to, amount);
         }
         else {
