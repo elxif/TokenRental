@@ -235,7 +235,7 @@ const Interactions = (props) => {
             </form>
 
             <form onSubmit={createAssetHandler}>
-                <h3>Submit Project Proposal:</h3>
+                <h3>Make a rental contract request:</h3>
                 <a>Asset Name:</a>
                 <input type='text' id='assetName'/>
                 <a><br></br></a>
