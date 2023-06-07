@@ -7,15 +7,20 @@ const Interactions = (props) => {
     const [assetInfo, setAssetInfo] = useState(null);
     const [memberInfo, setMemberInfo] = useState(null);
     const [assetID, setAssetID] = useState(null);
+    const [rentalContractID, setRentalContractID] = useState(null);
 
+    const Contract = props.contract;
+
+    function parse(response) {
+        return response["events"][0]["args"][2]["_hex"];
+    }
+    
 
     const assetOwnerViewer = async (e) => {
         e.preventDefault();
         let id = e.target.assetID.value;
         id=parseInt(id);
-        console.log("assetID: " + id);
         let tx = await props.contract.getAssetOwner(id);
-        console.log(tx);
         if(tx === "0x0000000000000000000000000000000000000000"){
             tx = "No such project!";
         }
@@ -26,10 +31,8 @@ const Interactions = (props) => {
         e.preventDefault();
         let id = e.target.assetID.value;
         id=parseInt(id);
-        console.log("assetID: " + id);
         let tx = await props.contract.getAssetInfo(id);
         let assetName = tx[0];
-        //ownerOf(assetID), a.isRealEstate, a.latitude, a.longitude, a.rentable, a.rentPrice)
         let assetowner = tx[1];
         let isRealEstate = tx[2];
         let latitude = parseInt(tx[3]);
@@ -51,11 +54,27 @@ const Interactions = (props) => {
         let rentable = e.target.rentable.value;
         let rentPrice = e.target.rentPrice.value;
 
-        console.log(assetName, isRealEstate, latitude, longitude, rentable, rentPrice);
-        let transactionResponse = await props.contract.createAsset(assetName, isRealEstate, latitude, longitude, rentable, rentPrice);
-        let transactionReceipt = await transactionResponse.wait(1);
-        console.log(transactionReceipt);
+        let transactionResponse = await Contract.createAsset(assetName, isRealEstate, latitude, longitude, rentable, rentPrice);
+        let transactionReceipt = await transactionResponse.wait(2);
+        setAssetID(Number(parse(transactionReceipt)));
+        //setAssetID(tx["logs"]);
+    }
+
+
+    //TODO: finish this
+    const getRentalFeeHandler = async (e) => {
+        e.preventDefault();
+        let contractID = e.target.contractID.value;
         
+    }
+
+    const respondRentalContractRequest = async (e) => {
+        e.preventDefault();
+        let requestID = e.target.requestID.value;
+        let approved = e.target.approved.value;
+        let transactionResponse = await props.contract.respondRentalContractRequest(requestID, approved);
+        let transactionReceipt = await transactionResponse.wait(2);
+        setRentalContractID(Number(parse(transactionReceipt)));
         //setAssetID(tx["logs"]);
     }
 	
@@ -105,6 +124,16 @@ const Interactions = (props) => {
                 <button type='submit' className={styles.button6}>Submit</button>
                 {/* <a>  response**</a> */}
                 <p><br></br> {assetID}</p>
+            </form>
+
+            <form onSubmit={respondRentalContractRequest}>
+                <p>Approve rental contract request by its request ID:</p>          
+                <input type='number' id='requestID'/>
+                <br></br>
+                <p>Do you approve? true or false:</p>
+                <input type='text' id='approved'/>
+                <button type='submit'>✔</button> 
+                <p><br></br>{rentalContractID}</p>
             </form>
 
 
