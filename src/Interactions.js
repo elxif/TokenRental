@@ -52,10 +52,11 @@ const Interactions = (props) => {
         let rentPrice = e.target.rentPrice.value;
 
         console.log(assetName, isRealEstate, latitude, longitude, rentable, rentPrice);
-        let tx = await props.contract.createAsset(assetName, isRealEstate, latitude, longitude, rentable, rentPrice);
-        console.log(tx);
+        let transactionResponse = await props.contract.createAsset(assetName, isRealEstate, latitude, longitude, rentable, rentPrice);
+        let transactionReceipt = await transactionResponse.wait(1);
+        console.log(transactionReceipt);
         
-        setAssetID(tx["logs"]);
+        //setAssetID(tx["logs"]);
     }
 	
 
