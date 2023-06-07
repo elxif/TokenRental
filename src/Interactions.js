@@ -9,6 +9,8 @@ const Interactions = (props) => {
     const [assetID, setAssetID] = useState(null);
     const [rentalContractID, setRentalContractID] = useState(null);
     const [requestID, setRequestID] = useState(null);
+    const [requestInfo, setRequestInfo] = useState(null);
+    const [contractInfo, setContractInfo] = useState(null);
 
     const Contract = props.contract;
 
@@ -99,10 +101,47 @@ const Interactions = (props) => {
 
         console.log(transactionReceipt["events"][0]["args"][2]["_hex"]);
         let hex10 = Number(transactionReceipt["events"][0]["args"][2]["_hex"]);
-        setAssetID(hex10);
+        setRequestID(hex10);
 
     }
-	
+
+   
+
+    const requestInfoViewer = async (e) => {
+        e.preventDefault();
+        let id = e.target.r_v_requestID.value;
+        id=parseInt(id);
+        let tx = await props.contract.getRequestInfo(id);
+        let assetID = tx[0];
+        let responded = tx[1];
+        let assetRenter = tx[2];
+        let startTime = parseInt(tx[3]);
+        let endTime = parseInt(tx[4]);
+        let rentalContractID = parseInt(tx[5]);
+        let info = "Asset ID: " + assetID + ".\nAsset Renter: " + assetRenter + ".\n Responded ?" + (responded ? ".\n Yes it is Responded " : " Not Responded yet") 
+        + ".\nStart Time: " + startTime + ".\n End Time" + "\n End Time" + endTime+ ".\n Rental Contract ID (if it is created it is greater than 0)" 
+        + rentalContractID;
+
+        setRequestInfo(info);
+    }
+
+    
+	const rentalContractInfoViewer = async (e) => {
+        e.preventDefault();
+        let id = e.target.r_v_contractID.value;
+        id=parseInt(id);
+        let tx = await props.contract.getRentalContractInfo(id);
+        let startTime = parseInt(tx[0]);
+        let endTime = parseInt(tx[1]);
+        let assetOwner = tx[2];
+        let assetRenter = tx[3];
+        let assetID = tx[4];
+        
+        let info = "Asset ID: " + assetID + ".\nAsset Renter: " + assetRenter + ".\nAsset Owner: " + assetOwner  
+        + ".\nStart Time: " + startTime + ".\n End Time" + "\n End Time" + endTime;
+
+        setContractInfo(info);
+    }
 
     return(
         <div className={styles.interactionsCard}>
@@ -150,7 +189,7 @@ const Interactions = (props) => {
             </form>
 
             <form onSubmit={respondRentalContractRequest}>
-                <p>Approve rental contract request by its request ID:</p>          
+                <h3>Approve rental contract request by its request ID:</h3>          
                 <input type='number' id='requestID'/>
                 <br></br>
                 <p>Do you approve? true or false:</p>
@@ -181,6 +220,22 @@ const Interactions = (props) => {
                 <a><br></br></a>
                 <a>Request is sent! requestID: </a>
                 <a>{requestID}</a>
+                <a><br></br></a>
+            </form>
+
+            <form onSubmit={requestInfoViewer}>
+                <h3>Get Request info by its id:</h3>
+                <input type='number' id='r_v_requestID'/>
+                <button type='submit'>✔</button> 
+                <p><br></br>{requestInfo}</p>
+                <a><br></br></a>
+            </form>
+
+            <form onSubmit={rentalContractInfoViewer}>
+                <h3>Get Rental Contract info by its id:</h3>
+                <input type='number' id='r_v_contractID'/>
+                <button type='submit'>✔</button> 
+                <p><br></br>{contractInfo}</p>
                 <a><br></br></a>
             </form>
 
