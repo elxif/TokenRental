@@ -143,6 +143,36 @@ const Interactions = (props) => {
         setContractInfo(info);
     }
 
+    const rentalRequestCancellationHandler = async (e) => {
+        e.preventDefault();
+        let id = e.target.cancel_requestID.value;
+        id=parseInt(id);
+        let tx = await props.contract.cancelRequest(id);
+
+        console.log(tx);
+
+    }
+
+    const askRefundNotRespondedRequest = async (e) => {
+        e.preventDefault();
+        let id = e.target.refund_requestID.value;
+        id=parseInt(id);
+        let tx = await props.contract.requestForNotResponded(id);
+
+        console.log(tx);
+
+    }
+
+    const getApprovedRentalFee = async (e) => {
+        e.preventDefault();
+        let id = e.target.rentalfee_contractID.value;
+        id=parseInt(id);
+        let tx = await props.contract.getRentalFee(id);
+
+        console.log(tx);
+
+    }
+
     return(
         <div className={styles.interactionsCard}>
 
@@ -236,6 +266,42 @@ const Interactions = (props) => {
                 <input type='number' id='r_v_contractID'/>
                 <button type='submit'>✔</button> 
                 <p><br></br>{contractInfo}</p>
+                <a><br></br></a>
+            </form>
+
+
+            <form onSubmit={rentalRequestCancellationHandler}>
+                <h3>For Renters</h3>
+                <h5>Cancel your non responded rental requests:</h5>
+                <a3>Requestid: </a3>
+                <input type='number' id='cancel_requestID'/>
+                <button type='submit'>✔</button> 
+                
+                <a><br></br></a>
+            </form>
+
+
+            <form onSubmit={askRefundNotRespondedRequest}>
+                <h3>For Renters</h3>
+                <h5>Get your money back for requests </h5>
+                <h5>that Is  not responded by the request start time :</h5>
+                <a3>Request ID: </a3>
+                <input type='number' id='refund_requestID'/>
+                <button type='submit'>✔</button> 
+                
+                <a><br></br></a>
+            </form>
+
+
+
+            <form onSubmit={getApprovedRentalFee}>
+                <h3>For Owners</h3>
+                <h5>Get your rental fee after the rental period end time:</h5>
+                <a3>Contract ID: </a3>
+                <input type='number' id='rentalfee_contractID'/>
+                <button type='submit'>✔</button> 
+                <a><br></br></a>
+                <a><br></br></a>
                 <a><br></br></a>
             </form>
 
