@@ -40,7 +40,6 @@ const Interactions = (props) => {
     const assetOwnerViewer = async (e) => {
         e.preventDefault();
         let id = e.target.assetID.value;
-        id=parseInt(id);
         let tx = await props.contract.getAssetOwner(id);
         if(tx === "0x0000000000000000000000000000000000000000"){
             tx = "No such project!";
@@ -51,7 +50,6 @@ const Interactions = (props) => {
     const assetInfoViewer = async (e) => {
         e.preventDefault();
         let id = e.target.assetID.value;
-        id=parseInt(id);
         let tx = await props.contract.getAssetInfo(id);
         let assetName = tx[0];
         let assetowner = tx[1];
@@ -64,6 +62,19 @@ const Interactions = (props) => {
         (rentable ? "\nRentable" : "\nNot Rentable") + "\nPrice: " + rentPrice;
 
         setAssetInfo(info);
+    }
+
+    const memberInfoViewer = async (e) => {
+        e.preventDefault();
+        let address = e.target.memberAddress.value;
+        let tx = await props.contract.getMemberInfo(address);
+        let isActive = tx[0];
+        let isBanned = tx[1];
+        let assetList = tx[2];
+        let info = (isActive ? "Active" : " Not Active") + (isBanned ? " \nBanned" : " \nNot Banned")
+        + " \nAsset List: "+ assetList;
+
+        setMemberInfo(info);
     }
 
     const createAssetHandler = async (e) => {
@@ -128,7 +139,6 @@ const Interactions = (props) => {
     const requestInfoViewer = async (e) => {
         e.preventDefault();
         let id = e.target.r_v_requestID.value;
-        id=parseInt(id);
         let tx = await props.contract.getRequestInfo(id);
         let assetID = tx[0];
         let responded = tx[1];
@@ -147,7 +157,6 @@ const Interactions = (props) => {
 	const rentalContractInfoViewer = async (e) => {
         e.preventDefault();
         let id = e.target.r_v_contractID.value;
-        id=parseInt(id);
         let tx = await props.contract.getRentalContractInfo(id);
         let startTime = parseInt(tx[0]);
         let endTime = parseInt(tx[1]);
@@ -164,7 +173,6 @@ const Interactions = (props) => {
     const rentalRequestCancellationHandler = async (e) => {
         e.preventDefault();
         let id = e.target.cancel_requestID.value;
-        id=parseInt(id);
         let tx = await props.contract.cancelRequest(id);
 
         console.log(tx);
@@ -174,7 +182,6 @@ const Interactions = (props) => {
     const askRefundNotRespondedRequest = async (e) => {
         e.preventDefault();
         let id = e.target.refund_requestID.value;
-        id=parseInt(id);
         let tx = await props.contract.requestForNotResponded(id);
 
         console.log(tx);
@@ -184,7 +191,6 @@ const Interactions = (props) => {
     const getApprovedRentalFee = async (e) => {
         e.preventDefault();
         let id = e.target.rentalfee_contractID.value;
-        id=parseInt(id);
         let tx = await props.contract.getRentalFee(id);
 
         console.log(tx);
@@ -212,6 +218,13 @@ const Interactions = (props) => {
                 <input type='number' id='assetID'/>
                 <button type='submit'>✔</button> 
                 <p><br></br> {assetOwner}</p>
+            </form>
+
+            <form onSubmit={memberInfoViewer}>
+                <p>Get member info by its address:</p>          
+                <input type='text' id='memberAddress'/>
+                <button type='submit'>✔</button> 
+                <p><br></br>{memberInfo}</p>
             </form>
 
             <form onSubmit={assetInfoViewer}>
