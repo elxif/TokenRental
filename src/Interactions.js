@@ -8,6 +8,7 @@ const Interactions = (props) => {
     const [memberInfo, setMemberInfo] = useState(null);
     const [assetID, setAssetID] = useState(null);
     const [rentalContractID, setRentalContractID] = useState(null);
+    const [requestID, setRequestID] = useState(null);
 
     const Contract = props.contract;
 
@@ -77,9 +78,31 @@ const Interactions = (props) => {
         setRentalContractID(Number(parse(transactionReceipt)));
         //setAssetID(tx["logs"]);
     }
+
+    const GL = 550000;
+
+    const rentalContractRequestmakerHandler = async (e) => {
+        e.preventDefault();
+
+        let assetID = e.target.r_assetID.value;
+        let startTime = e.target.r_startTime.value;
+        let endTime = e.target.r_endTime.value;
+        let amount = e.target.r_amount.value;
+
+        console.log(assetID, startTime, endTime, amount);
+        let transactionResponse = await props.contract.makeRentalContractRequest(assetID, startTime, endTime,  {value:amount, gasLimit: GL});
+        let transactionReceipt = await transactionResponse.wait(1);
+
+        console.log(transactionResponse);
+        console.log(transactionReceipt);
+
+
+        console.log(transactionReceipt["events"][0]["args"][2]["_hex"]);
+        let hex10 = Number(transactionReceipt["events"][0]["args"][2]["_hex"]);
+        setAssetID(hex10);
+
+    }
 	
-
-
 
     return(
         <div className={styles.interactionsCard}>
@@ -135,6 +158,34 @@ const Interactions = (props) => {
                 <button type='submit'>✔</button> 
                 <p><br></br>{rentalContractID}</p>
             </form>
+
+
+            <form onSubmit={rentalContractRequestmakerHandler}>
+                <h3>Make a rental contract request !</h3>
+                <p></p>          
+                <a>Asset ID:</a>
+                <input type='text' id='r_assetID'/>
+                <a><br></br></a>
+                <a>Start Time in unix time unit:</a>
+                <input type='text' id='r_startTime'/>
+                <a><br></br></a>
+                <a>End Time in unix time unit:</a>
+                <input type='text' id='r_endTime'/>
+                <a><br></br></a>
+                <a>Amount of wei you are paying:</a>
+                <a><br></br></a>
+                <a>Note: you should pay at least the rental priceper unit time * duration:</a>
+                <input type='text' id='r_amount'/>
+                <a><br></br></a>
+                <button type='submit' className={styles.button6}>Submit</button>
+                <a><br></br></a>
+                <a>Request is sent! requestID: </a>
+                <a>{requestID}</a>
+                <a><br></br></a>
+            </form>
+
+
+
 
 
 
