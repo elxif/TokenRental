@@ -11,6 +11,9 @@ const Interactions = (props) => {
     const [requestID, setRequestID] = useState(null);
     const [requestInfo, setRequestInfo] = useState(null);
     const [contractInfo, setContractInfo] = useState(null);
+    const [assetCount, setAssetCount] = useState(null);	
+    const [memberCount, setMemberCount] = useState(null);	
+
 
     const Contract = props.contract;
 
@@ -18,6 +21,21 @@ const Interactions = (props) => {
         return response["events"][0]["args"][2]["_hex"];
     }
     
+    			
+    const noOfAssetsViewer = async (e) => {	
+        e.preventDefault();	
+        let count_string = await props.contract.getNoOfAssets();	
+        let count = Number(count_string);	
+        setAssetCount(count);	
+    }	
+    	
+    const noOfMembersViewer = async (e) => {	
+        e.preventDefault();	
+        let count_string = await props.contract.getNoOfMembers();	
+        let count = Number(count_string);	
+        setMemberCount(count);
+
+    }
 
     const assetOwnerViewer = async (e) => {
         e.preventDefault();
@@ -177,6 +195,17 @@ const Interactions = (props) => {
         <div className={styles.interactionsCard}>
 
             <div className="column"></div>
+
+            <form onSubmit={noOfMembersViewer}>	
+                <a>Get number of members: </a>	
+                <button type='submit'>✔</button>	
+                <a>  {memberCount}</a>	
+            </form>	
+            <form onSubmit={noOfAssetsViewer}>	
+                <a>Get number of assets: </a>	
+                <button type='submit'>✔</button>	
+                <a>  {assetCount}</a>	
+            </form>
 
             <form onSubmit={assetOwnerViewer}>
                 <p>Get asset owner by its id:</p>          
