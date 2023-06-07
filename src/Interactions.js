@@ -64,6 +64,18 @@ const Interactions = (props) => {
         setAssetInfo(info);
     }
 
+    const setAssetPriceHandler = async (e) => {
+
+        e.preventDefault();
+        let id = e.target.rentPrice_assetID.value;
+        let rentPrice = e.target.new_rentPrice.value;
+        let tx = await props.contract.setAssetRentPrice(id, rentPrice);
+
+        console.log(tx);
+
+
+    }	
+
     const memberInfoViewer = async (e) => {
         e.preventDefault();
         let address = e.target.memberAddress.value;
@@ -232,6 +244,18 @@ const Interactions = (props) => {
                 <input type='number' id='assetID'/>
                 <button type='submit'>✔</button> 
                 <p><br></br>{assetInfo}</p>
+            </form>
+
+            			
+            <form onSubmit={setAssetPriceHandler}>
+                <h3>Set your rental price for a new price</h3>
+                <a3>Asset ID: </a3>
+                <input type='number' id='rentPrice_assetID'/>
+                <a3>New Rental Price: </a3>
+                <input type='number' id='new_rentPrice'/>
+                <button type='submit'>✔</button> 
+                
+                <a><br></br></a>
             </form>
 
             <form onSubmit={createAssetHandler}>
