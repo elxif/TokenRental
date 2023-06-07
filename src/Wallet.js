@@ -8,7 +8,7 @@ import simple_token_abi from './Contracts/simple_token_abi.json'
 
 const Wallet = () => {
     // deployed contract address, ganache-clib address
-    const contractAddress = '0xeb728521C452302D452cc04911Ced7cbF65D1d4D';
+    const contractAddress = '0xd04ae0b955f9b3dd19d119fa78c289501676d682';
     const [tokenName, setTokenName] = useState("Token");
     const [connectButtonName, setConnectButtonName] = useState("Connect");
     const [error, setError] = useState(null);
@@ -80,15 +80,15 @@ const Wallet = () => {
     return (
         <div>
             <h1>{tokenName} + ERC-721</h1>
-            <button className={styles.button6} onClick={connectWalletHandler}>{connectButtonName}</button>
-            <div className={styles.walletCard}>
+            <button onClick={connectWalletHandler}>{connectButtonName}</button>
+            <div>
                 <div>
                     <p>Address: {defaultAccount}</p>
                 </div>
 
                 <div>
                     <h2>{tokenName} Balance: {balance}</h2>
-                    <button className={styles.button6} onClick={updateBalance}>Refresh Balance</button>
+                    <button onClick={updateBalance}>Refresh Balance</button>
                 </div>
                 <div>
                     {error}
