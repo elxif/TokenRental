@@ -134,7 +134,7 @@ const Interactions = (props) => {
 
         console.log(assetID, startTime, endTime, amount);
         let transactionResponse = await props.contract.makeRentalContractRequest(assetID, startTime, endTime,  {value:amount, gasLimit: GL});
-        let transactionReceipt = await transactionResponse.wait(1);
+        let transactionReceipt = await transactionResponse.wait(2);
 
         console.log(transactionResponse);
         console.log(transactionReceipt);
@@ -254,16 +254,15 @@ const Interactions = (props) => {
                 <a3>New Rental Price: </a3>
                 <input type='number' id='new_rentPrice'/>
                 <button type='submit'>✔</button> 
-                
                 <a><br></br></a>
             </form>
 
             <form onSubmit={createAssetHandler}>
-                <h3>Make a rental contract request:</h3>
+                <h3>Create a new asset:</h3>
                 <a>Asset Name:</a>
                 <input type='text' id='assetName'/>
                 <a><br></br></a>
-                <a>Is it Real estate ? true or false:</a>
+                <a>Is it Real estate? true or false:</a>
                 <input type='text' id='isRealEstate'/>
                 <a><br></br></a>
                 {/* bunlara uzerine gelince hint ekle virgulle ayrilacak diye */}
@@ -273,13 +272,13 @@ const Interactions = (props) => {
                 <a>longitude:</a>
                 <input type='text' id='longitude'/>
                 <a><br></br></a>
-                <a>Is it rentable ? true or false:</a>
+                <a>Is it rentable? true or false:</a>
                 <input type='text' id='rentable'/>
                 <a><br></br></a>
                 <a>Rent price per second in wei:</a>
                 <input type='text' id='rentPrice'/>
                 <a><br></br></a>
-                <button type='submit' className={styles.button6}>Submit</button>
+                <button type='submit'>Submit</button>
                 {/* <a>  response**</a> */}
                 <p><br></br> {assetID}</p>
             </form>
@@ -296,7 +295,7 @@ const Interactions = (props) => {
 
 
             <form onSubmit={rentalContractRequestmakerHandler}>
-                <h3>Make a rental contract request !</h3>
+                <h3>Make a rental contract request!</h3>
                 <p></p>          
                 <a>Asset ID:</a>
                 <input type='text' id='r_assetID'/>
@@ -309,12 +308,12 @@ const Interactions = (props) => {
                 <a><br></br></a>
                 <a>Amount of wei you are paying:</a>
                 <a><br></br></a>
-                <a>Note: you should pay at least the rental priceper unit time * duration:</a>
+                <a>Note: you should pay at least the rental price<br></br>per unit time * duration:</a><br></br>
                 <input type='text' id='r_amount'/>
                 <a><br></br></a>
-                <button type='submit' className={styles.button6}>Submit</button>
+                <button type='submit'>Submit</button>
                 <a><br></br></a>
-                <a>Request is sent! requestID: </a>
+                <a>RequestID: </a>
                 <a>{requestID}</a>
                 <a><br></br></a>
             </form>
