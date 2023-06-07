@@ -6,6 +6,7 @@ const Interactions = (props) => {
     const [assetOwner, setAssetOwner] = useState(null);
     const [assetInfo, setAssetInfo] = useState(null);
     const [memberInfo, setMemberInfo] = useState(null);
+    const [assetID, setAssetID] = useState(null);
 
 
     const assetOwnerViewer = async (e) => {
@@ -41,6 +42,25 @@ const Interactions = (props) => {
         setAssetInfo(info);
     }
 
+    const createAssetHandler = async (e) => {
+        e.preventDefault();
+        let assetName = e.target.assetName.value;
+        let isRealEstate = e.target.isRealEstate.value;
+        let latitude = e.target.latitude.value;
+        let longitude = e.target.longitude.value;
+        let rentable = e.target.rentable.value;
+        let rentPrice = e.target.rentPrice.value;
+
+        console.log(assetName, isRealEstate, latitude, longitude, rentable, rentPrice);
+        let tx = await props.contract.createAsset(assetName, isRealEstate, latitude, longitude, rentable, rentPrice);
+        console.log(tx);
+        
+        setAssetID(tx["logs"]);
+    }
+	
+
+
+
     return(
         <div className={styles.interactionsCard}>
 
@@ -59,6 +79,35 @@ const Interactions = (props) => {
                 <button type='submit'>✔</button> 
                 <p><br></br>{assetInfo}</p>
             </form>
+
+            <form onSubmit={createAssetHandler}>
+                <h3>Submit Project Proposal:</h3>
+                <a>Asset Name:</a>
+                <input type='text' id='assetName'/>
+                <a><br></br></a>
+                <a>Is it Real estate ? true or false:</a>
+                <input type='text' id='isRealEstate'/>
+                <a><br></br></a>
+                {/* bunlara uzerine gelince hint ekle virgulle ayrilacak diye */}
+                <a>latitude:</a>
+                <input type='text' id='latitude'/>
+                <a><br></br></a>
+                <a>longitude:</a>
+                <input type='text' id='longitude'/>
+                <a><br></br></a>
+                <a>Is it rentable ? true or false:</a>
+                <input type='text' id='rentable'/>
+                <a><br></br></a>
+                <a>Rent price per second in wei:</a>
+                <input type='text' id='rentPrice'/>
+                <a><br></br></a>
+                <button type='submit' className={styles.button6}>Submit</button>
+                {/* <a>  response**</a> */}
+                <p><br></br> {assetID}</p>
+            </form>
+
+
+
         </div>
     )
 }
